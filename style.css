@@ -1,0 +1,52 @@
+.chartDiv{
+  width: 100%
+  max-height: 200px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.grid-container{
+  display: grid;
+  grid-template-columns: 33% 33% 33%;
+  grid-template-rows: auto;
+  grid-template-areas:
+    "header header1 header2"
+    "config stat stat2"
+    "config simulation simulation2"
+    "config chart chart";
+}
+.grid-item-header{
+  grid-area: header;
+  text-align: center;
+}
+.grid-item-header1{
+  grid-area: header1;
+  text-align: center;
+}
+.grid-item-header2{
+  grid-area: header2;
+  text-align: center;
+}
+.grid-item-stat{
+  grid-area: stat;
+  text-align: center;
+}
+.grid-item-stat1{
+  grid-area: stat1;
+  text-align: center;
+}
+.grid-item-config{
+  grid-area: config;
+  text-align: center;
+}
+.grid-item-chart{
+  grid-area: chart;
+  text-align: center;
+}
+.grid-item-simulation{
+  grid-area: simulation;
+  text-align: center;
+}
+.grid-item-simulation2{
+  grid-area: simulation2;
+  text-align: center;
+}

@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Genetic Algorithm - Jonas Freiburghaus</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/gh/nicolaspanel/numjs@0.15.1/dist/numjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0/dist/Chart.min.js"></script>
+    <script type="text/javascript" src="Config.js"></script>
+    <script type="text/javascript" src="Util.js"></script>
+    <script type="text/javascript" src="GeneticAlgorithm.js"></script>
+    <script type="text/javascript" src="NeuralNetwork.js"></script>
+    <script type="text/javascript" src="PubSub.js"></script>
+    <script type="text/javascript" src="GraphicalElement.js"></script>
+    <script type="text/javascript" src="Mouse.js"></script>
+    <script type="text/javascript" src="Cheese.js"></script>
+    <script type="text/javascript" src="Simulator.js"></script>
+    <script type="text/javascript">
+    let isSimulationOn = false
+
+    function setSettings(form){
+      if(!isSimulationOn){
+        isSimulationOn = true
+        config.fps = parseInt(form.fps.value)
+        config.respawn = form.respawn.checked
+        config.nbHiNodes = parseInt(form.nbHiNodes.value)
+        config.nnInWMatDim[0] = config.nbHiNodes
+        config.nnOutWMatDim[0] = config.nbHiNodes
+        config.nbMice =  parseInt(form.numMice.value)
+        config.nbCheese = parseInt(form.numCheese.value)
+        if(!config.respawn)
+          config.chartOptions.scales.yAxes[0].ticks.max = config.nbCheese;
+        config.maxSteps = parseInt(form.steps.value)
+        config.elitismPercentage = parseFloat(form.elitism.value)
+        config.mutationRate = parseFloat(form.mutation.value)
+        config.mouseMinSpeed = parseFloat(form.minspeed.value)
+        config.mouseMaxSpeed = parseFloat(form.maxspeed.value)
+        config.mouseSize = parseInt(form.mouseSize.value)
+        config.cheeseSize = parseInt(form.cheeseSize.value)
+        runSimulations(form.comparison.checked)
+      }
+      else{
+        alert("A simulation is already running please, clear the page")
+      }
+    }
+
+    function runSimulations(withComparison){
+      try{
+        let canvas = document.getElementById('canvas')
+        let generationSpan = document.getElementById('generation')
+        let stepsSpan = document.getElementById('steps')
+        let avgGen = document.getElementById('avgGen')
+
+        let ctxGeneration = document.getElementById('chartGeneration').getContext('2d')
+        let chartGeneration = new Chart(ctxGeneration, {
+            type: 'line',
+            data: {
+              labels: [],
+              datasets: [
+                {
+                  label: "Eaten cheeses with GA",
+                  borderColor: 'rgb(255, 0, 0)',
+                  fill: false,
+                  data: []
+                },
+                {
+                  label: "Eaten cheeses without GA",
+                  borderColor: 'rgb(0, 255, 0)',
+                  fill: false,
+                  data: []
+                }
+              ]
+            },
+            options : config.chartOptions
+        })
+
+        // With GA
+        let avgEatenCheese = 0; let i = 0;
+        let pubSubGeneration = new PubSub()
+        pubSubGeneration.subscribe('steps', data => stepsSpan.innerHTML = data)
+        pubSubGeneration.subscribe('generation', data => generationSpan.innerHTML = data)
+        pubSubGeneration.subscribe('stat', (stat) => {
+          chartGeneration.data.labels.push(stat[0])
+          chartGeneration.data.datasets[0].data.push(stat[1])
+          chartGeneration.update()
+          avgEatenCheese = chartGeneration.data.datasets[0].data.reduce((x, y) => x + y) / ++i
+          avgGen.innerHTML = avgEatenCheese.toFixed(2)
+        })
+        let simulator = new Simulator(canvas, pubSubGeneration, true)
+        simulator.simulate()
+
+        // Without GA
+        if(withComparison){
+          let generation0Span = document.getElementById('generation0')
+          let stepsSpan0 = document.getElementById('steps0')
+          let avgGen0 = document.getElementById('avgGen0')
+
+          let avgEatenCheese0 = 0; let n = 0
+          let pubSubGeneration0 = new PubSub()
+          pubSubGeneration0.subscribe('steps', data => stepsSpan0.innerHTML = data)
+          pubSubGeneration0.subscribe('generation', data => generation0Span.innerHTML = data)
+          pubSubGeneration0.subscribe('stat', (stat) => {
+            chartGeneration.data.datasets[1].data.push(stat[1])
+            chartGeneration.update()
+            avgEatenCheese0 = chartGeneration.data.datasets[1].data.reduce((x, y) => x + y) / ++n
+            avgGen0.innerHTML = avgEatenCheese0.toFixed(2)
+          })
+          let simulatorGen0 = new Simulator(canvasGen0, pubSubGeneration0, false)
+          simulatorGen0.simulate()
+        }
+      } catch(err) {
+        console.log(err)
+      }
+    }
+    </script>
+  </head>
+  <body>
+    <div class="grid-container">
+      <div class="grid-item-header">
+        <h1>Configuration</h1>
+      </div>
+      <div class="grid-item-header1">
+        <h1>Improvement with a Genetic algorithm</h1>
+      </div>
+      <div class="grid-item-stat">
+        <p>Generation : <span id="generation"></span></p>
+        <p>Steps : <span id="steps"></span></p>
+        <p>Average eaten cheeses : <span id="avgGen"></span></p>
+      </div>
+      <div class="grid-item-header2">
+        <h1>No improvement</h1>
+      </div>
+      <div class="grid-item-stat2">
+        <p>Generation : <span id="generation0"></span></p>
+        <p>Steps : <span id="steps0"></span></p>
+        <p>Average eaten cheeses : <span id="avgGen0"></span></p>
+      </div>
+      <div class="grid-item-config">
+        <form id="settingsForm" onsubmit="setSettings(this); return false;">
+          <fieldset>
+            <legend>Simulation</legend>
+            <div>
+              <label for="fps">Frames per second</label><br>
+              <input id="fps" type="number" min="10" max="100" name="fps" value="60" required>
+            </div>
+            <div>
+              <label for="steps">Number of steps in a generation</label><br>
+              <input id="steps" type="number" min="100" max="10000" name="steps" value="400" required>
+            </div>
+            <div>
+              <label for="comparison">With comparison to no changes between generations</label><br>
+              <input id="comparison" type="checkbox" name="comparison" checked>
+            </div>
+            <div>
+              <label for="respawn">With cheese respawn</label><br>
+              <input id="respawn" type="checkbox" name="respawn" checked>
+            </div>
+          </fieldset>
+          <fieldset>
+            <legend>Neural network</legend>
+            <div>
+              <label for="nbHiNodes">Number of nodes in the hidden layer</label><br>
+              <input id="nbHiNodes" type="number" min="2" max="10" name="nbHiNodes" value="10" required>
+            </div>
+          </fieldset>
+          <fieldset>
+            <legend>Genetic algorithm</legend>
+            <div>
+              <label for="elitism">Elitism percentage</label><br>
+              <input id="elitism" type="number" min="0.1" max="1" step="0.1" name="elitism" value="0.2" required>
+            </div>
+            <div>
+              <label for="mutation">Mutation rate</label><br>
+              <input id="mutation" type="number" min="0.1" max="0.5" step="0.1" name="mutation" value="0.1" required>
+            </div>
+          </fieldset>
+          <fieldset>
+            <legend>Mouse</legend>
+            <div>
+              <label for="num-mice">Number of mice</label><br>
+              <input id="numMice" type="number" min="4" max="200" name="num-mice" value="40" required>
+            </div>
+            <div>
+              <label for="minspeed">Mouse minimum speed</label><br>
+              <input id="minspeed" type="number" min="0.1" max="0.9" step="0.1" name="minspeed" value="0.5" required>
+            </div>
+            <div>
+              <label for="maxspeed">Mouse maximum speed</label><br>
+              <input id="maxspeed" type="number" min="1" max="5" step="0.1" name="maxspeed" value="1" required>
+            </div>
+            <div>
+              <label for="mouseSize">Mouse size</label><br>
+              <input id="mouseSize" type="number" min="1" max="10" name="mouseSize" value="5" required>
+            </div>
+          </fieldset>
+          <fieldset>
+            <legend>Cheese</legend>
+            <div>
+              <label for="num-cheese">Number of cheeses</label><br>
+              <input id="numCheese" type="number" min="4" max="200" name="num-cheese" value="40" required>
+            </div>
+            <div>
+              <label for="cheeseSize">Cheese size</label><br>
+              <input id="cheeseSize" type="number" min="1" max="10" name="cheeseSize" value="4" required>
+            </div>
+          </fieldset>
+          <input type="submit" name="Run" value="run">
+          <button type="button" name="Cleer" onclick="location.reload()">Clear page</button>
+        </form>
+      </div>
+      <div class="grid-item-simulation">
+        <canvas style="border:solid 1px;" id="canvas" width="300" height="300"></canvas>
+      </div>
+      <div class="grid-item-simulation2">
+        <canvas style="border:solid red 1px;" id="canvasGen0" width="300" height="300"></canvas>
+      </div>
+      <div class="grid-item-chart">
+        <div class="chartDiv">
+          <canvas id="chartGeneration"></canvas>
+        </div>
+      </div>
+    <div>
+  </body>
+</html>
