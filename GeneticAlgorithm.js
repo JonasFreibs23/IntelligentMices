@@ -1,5 +1,12 @@
+/**
+ * [GeneticAlgorithm Performs a genetic algorithm on a mouse population]
+ */
 class GeneticAlgorithm {
 
+  /**
+   * [constructor]
+   * @param {Object} canvas [The simulation's canvas]
+   */
   constructor(canvas) {
     this.canvas = canvas
     this.elitismPercentage = config.elitismPercentage
@@ -7,6 +14,11 @@ class GeneticAlgorithm {
     this.i = 0
   }
 
+  /**
+   * [evolve Evolves a mice population using the best fitting mice from the previous population]
+   * @param  {Object} mice [The current mice generation to be evolved]
+   * @return {Array[Object]}      [The next mice generation]
+   */
   evolve(mice) {
     let elitism = Math.floor(this.elitismPercentage * mice.length)
     let nbNewMouse = mice.length - elitism
@@ -53,6 +65,7 @@ class GeneticAlgorithm {
         }
       }
 
+      // Add the new mouse to the next generation
       let mouse = new Mouse(this.canvas.width, this.canvas.height, this.canvas.getContext('2d'))
       mouse.net.hiWeights = hiWeights
       mouse.net.outWeights = outWeights

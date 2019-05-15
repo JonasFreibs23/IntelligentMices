@@ -1,3 +1,7 @@
+/**
+ * [config All the different parameters used in the simulation]
+ * @type {Object}
+ */
 let config = {
   maxSteps: 400,
   respawn: false,

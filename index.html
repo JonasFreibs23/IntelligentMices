@@ -18,6 +18,10 @@
     <script type="text/javascript">
     let isSimulationOn = false
 
+    /**
+     * [setSettings overwrite the base settings with the user's settings]
+     * @param {objet} form [The html form]
+     */
     function setSettings(form){
       if(!isSimulationOn){
         isSimulationOn = true
@@ -44,6 +48,10 @@
       }
     }
 
+    /**
+     * [runSimulations Start the simulation using the Config.js file]
+     * @param  {boolean} withComparison [Indicates whether to compare with a non-evolved mice population]
+     */
     function runSimulations(withComparison){
       try{
         let canvas = document.getElementById('canvas')

@@ -1,5 +1,15 @@
+/**
+ * [Mouse Represents a mouse]
+ * @extends GraphicalElement
+ */
 class Mouse extends GraphicalElement {
 
+      /**
+       * [constructor]
+       * @param {Number} maxX    [Maximum position along the x axis]
+       * @param {Number} maxY    [Maximum position along the y axis]
+       * @param {Object} context [The canva's context]
+       */
       constructor(maxX, maxY, context){
         super(maxX, maxY, config.mouseSize, 'grey')
         this.context = context
@@ -7,6 +17,9 @@ class Mouse extends GraphicalElement {
         this.net = new NeuralNetwork(config.nnInWMatDim, config.nnOutWMatDim)
       }
 
+      /**
+       * [init Initializes the mouse's attributes]
+       */
       init() {
         this.initRandomPosition()
         this.v = getRandomInRange(config.mouseMinSpeed, config.mouseMaxSpeed)
@@ -16,6 +29,9 @@ class Mouse extends GraphicalElement {
         this.fitness = 0
       }
 
+      /**
+       * [learn Learns whether to change velocity and heading based on the nearest cheese's heading]
+       */
       learn() {
         // alphaNearestFood [-pi, pi]
         let out = this.net.feedForward(nj.array([[this.alphaNearestFood]]))
@@ -26,6 +42,9 @@ class Mouse extends GraphicalElement {
         this.v = this.v < config.mouseMinSpeed ? config.mouseMinSpeed : this.v
       }
 
+      /**
+       * [draw Draws the mouse on the simulation's canvas]
+       */
       draw() {
         this.context.beginPath();
         this.context.arc(this.x, this.y, this.size, 0, 2 * Math.PI, false)
@@ -34,6 +53,10 @@ class Mouse extends GraphicalElement {
         this.context.stroke()
       }
 
+      /**
+       * [move Updates the mouse's position based on the velocity and heading]
+       * @return {[type]} [description]
+       */
       move() {
         this.x += this.v * Math.cos(this.alpha)
         this.y += this.v * Math.sin(this.alpha)

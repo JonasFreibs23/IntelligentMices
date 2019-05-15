@@ -1,5 +1,14 @@
+/**
+ * [Simulator Takes care of running a simulation]
+ */
 class Simulator {
 
+  /**
+   * [constructor]
+   * @param {Object} canvas [The canvas on which the simulation is represented]
+   * @param {Object} pubSub [The publishsubscribe class to publish new events]
+   * @param {Boolean} withGA [Runs the simulation with the genetic algorithm if set to true]
+   */
   constructor(canvas, pubSub, withGA) {
       this.canvas = canvas
       this.pubSub = pubSub
@@ -20,20 +29,30 @@ class Simulator {
       this.initCheeses()
   }
 
+  /**
+   * [initMice Initializes a mice generation]
+   */
   initMice() {
       for(let i = 0; i < this.nbMice; i++){
         this.mice.push(new Mouse(this.canvas.width, this.canvas.height, this.context))
       }
   }
 
+  /**
+   * [initCheeses Initializes all the cheeses]
+   */
   initCheeses(){
     for(let i = 0; i < this.nbCheese; i++){
       this.cheeses.push(new Cheese(this.canvas.width, this.canvas.height, this.context))
     }
   }
 
+  /**
+   * [refreshDisplay Refreshes the simulation's display]
+   */
   refreshDisplay() {
     this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
     for (let mouse of this.mice) {
       mouse.draw()
     }
@@ -43,11 +62,15 @@ class Simulator {
     }
   }
 
+  /**
+   * [run Starts the simulation]
+   */
   run() {
     if(this.generation < this.maxGeneration) {
       this.steps = 0
       this.simulate()
       if(this.withGA) {
+        // Uses a deep copy of the mice generation
         this.mice = this.GA.evolve([...this.mice])
         this.generation++
       }
@@ -62,6 +85,9 @@ class Simulator {
     }
   }
 
+  /**
+   * [run Runs all the steps during a mice generation's lifespan]
+   */
   simulate() {
     this.mice.forEach(mouse => mouse.move())
 
@@ -108,6 +134,7 @@ class Simulator {
         }, 1000 / config.fps)
     }
     else{
+      // Mice generation's lifespan over
       this.run()
     }
   }
