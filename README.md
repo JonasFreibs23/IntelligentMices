@@ -1,16 +1,9 @@
-# A faire
+# Intelligent Mices
 
-## Pour la simulation
+## Author
 
-* Une classe simulateur
-* Une classe réseau de neuronne
-* Une class algorithme génétique
+* Jonas Freiburghaus [@JonasFreibs23](https://github.com/JonasFreibs23)
 
-## Pour la représentation
+## Context
 
-* Une class Mouse
-* Une class Cheese
-
-## Pour la configuration
-
-* Diverses classes Builder
+Project done during 4th Bachelor semester, for the numerical algorithm course.
