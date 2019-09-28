@@ -8,4 +8,4 @@ Artifical intelligence, the mices learn how to eat more cheeses, using a genetic
 
 ## Context
 
-Project done during 4th Bachelor semester, for the numerical algorithm course.
+Project done during the 4th Bachelor semester, for the numerical algorithm course.
